@@ -6,29 +6,20 @@ try:
 
     import numpy as np
     from scipy import signal as sg
-    import scipy.ndimage as ndimage
-    from scipy.ndimage.filters import maximum_filter
-
+   
     from PIL import Image
 
     import matplotlib.pyplot as plt
+    
+    from skimage.feature import peak_local_max
+    
 except ImportError:
     print("Need to fix the installation")
     raise
 
 
 def find_tfl_lights(c_image: np.ndarray, **kwargs):
-    """
-    Detect candidates for TFL lights. Use c_image, kwargs and you imagination to implement
-    :param c_image: The image itself as np.uint8, shape of (H, W, 3)
-    :param kwargs: Whatever config you want to pass in here
-    :return: 4-tuple of x_red, y_red, x_green, y_green
-    """
-    import skimage.transform as st
-
-    from skimage.feature import peak_local_max
-    #c_image = st.resize(c_image, (int(c_image.shape[0]*1), int(c_image.shape[1]*1)))
-
+    
     green = c_image[:, :, 1]
     red = c_image[:, :, 0]
 
@@ -55,10 +46,10 @@ def find_tfl_lights(c_image: np.ndarray, **kwargs):
     coordinates_red = peak_local_max(red_processed_image, min_distance=20, num_peaks=10)
     coordinates_green = peak_local_max(green_processed_image, min_distance=20, num_peaks=10)
 
-    red_x = [i[1]*1 for i in coordinates_red]
-    red_y = [i[0]*1 for i in coordinates_red]
-    green_x = [i[1]*1 for i in coordinates_green]
-    green_y = [i[0]*1 for i in coordinates_green]
+    red_x = [i[1] for i in coordinates_red]
+    red_y = [i[0] for i in coordinates_red]
+    green_x = [i[1] for i in coordinates_green]
+    green_y = [i[0] for i in coordinates_green]
 
     return red_x, red_y, green_x, green_y
 
@@ -77,9 +68,6 @@ def show_image_and_gt(image, objs, fig_num=None):
 
 
 def test_find_tfl_lights(image_path, json_path=None, fig_num=None):
-    """
-    Run the attention code
-    """
     image = np.array(Image.open(image_path))
     if json_path is None:
         objects = None
@@ -109,11 +97,11 @@ def main(argv=None):
     if args.dir is None:
         args.dir = default_base
     flist = glob.glob(os.path.join(args.dir, '*_leftImg8bit.png'))
-    for image in flist:
+    for i, image in enumerate(flist):
         json_fn = image.replace('_leftImg8bit.png', '_gtFine_polygons.json')
         if not os.path.exists(json_fn):
             json_fn = None
-        test_find_tfl_lights(image, json_fn)
+        test_find_tfl_lights(image, json_fn, i)
     if len(flist):
         print("You should now see some images, with the ground truth marked on them. Close all to quit.")
     else:
