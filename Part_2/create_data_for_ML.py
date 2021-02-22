@@ -26,18 +26,6 @@ def crop(img, x, y):
 def add_border(image):
     return ImageOps.expand(image, border=71, fill='black')
 
-
-def add_noise(img):
-    noise = np.random.randint(15, size=img.shape, dtype='uint8')
-    for i in range(img.shape[0]):
-        for j in range(img.shape[1]):
-            for k in range(img.shape[2]):
-                if (img[i][j][k] != 255):
-                    img[i][j][k] += noise[i][j][k]
-
-    return img
-
-
 def treat_image(data_path, label_path):
     if "/train" in data_path:
         type = "train"
@@ -59,8 +47,7 @@ def treat_image(data_path, label_path):
         add_to_file(cropped_tfl, 1, type)
         cropped_tfl = np.flip(cropped_tfl, 1)
         add_to_file(cropped_tfl, 1, type)
-        #noise = add_noise(cropped_tfl)
-        #add_to_file(noise, 1, type)
+        
         while True:
             i = randint(71, len(image)-71)
             new = crop(label, i, i)
@@ -69,8 +56,6 @@ def treat_image(data_path, label_path):
                 add_to_file(cropped_not_tfl, 0, type)
                 cropped_not_tfl = np.flip(cropped_not_tfl, 0)
                 add_to_file(cropped_not_tfl, 0, type)
-                #noise = add_noise(cropped_not_tfl)
-                #add_to_file(noise, 0, type)
                 break
 
 
@@ -94,7 +79,6 @@ def show_with_label(path, index):
     else:
         plt.title("TRAFFIC LIGHT!!")
     plt.show()
-    print(l_file)
 
 # open_images('leftImg8bit_trainvaltest/leftImg8bit/train')
 # open_images('leftImg8bit_trainvaltest/leftImg8bit/val')
